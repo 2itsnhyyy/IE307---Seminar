@@ -1,122 +1,96 @@
+// Import các thư viện cần thiết
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
+import CountDown from 'react-native-countdown-component';
 import moment from 'moment';
-import { CountDown } from 'react-native-countdown-component';
-import { useNavigation } from '@react-navigation/native';
-
-const CountdownTimer = () => {
+// Định nghĩa component CustomCountDownTimer
+const CustomCountDownTimer = () => {
+  // State totalDuration lưu trữ thời gian đếm ngược (tính bằng giây)
   const [totalDuration, setTotalDuration] = useState(0);
-  const navigation = useNavigation();
 
+  // useEffect được sử dụng để tính toán thời gian đếm ngược khi component được render
   useEffect(() => {
-    // Current date-time in the desired timezone (UTC +05:30)
-    let currentDate = moment().utcOffset('+05:30').format('YYYY-MM-DD HH:mm:ss');
-    
-    // Expiry date-time (you can set your own expiry date)
-    let expiryDate = '2024-12-31 23:59:59';  // Example expiry date-time
-    
-    // Calculate the difference between the current time and expiry time
-    let duration = moment.duration(moment(expiryDate).diff(moment(currentDate)));
-    
-    // Extract hours, minutes, and seconds from the duration
-    const hours = parseInt(duration.asHours());
-    const minutes = parseInt(duration.minutes());
-    const seconds = parseInt(duration.seconds());
+    // // Lấy thời gian hiện tại với múi giờ +05:30
+    // const currentDate = moment().utcOffset('+7:00').format('YYYY-MM-DD HH:mm:ss');
+    // // Tính toán thời gian hết hạn (1 ngày sau thời gian hiện tại)
+    // const expiryDate = moment().add(39, 'days').format('YYYY-MM-DD HH:mm:ss');
 
-    // Convert the duration into total seconds for the countdown timer
-    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+     // Lấy thời gian hiện tại
+     const currentDate = moment().utcOffset('0:00').format('YYYY-MM-DD HH:mm:ss');
+     // Thiết lập thời gian hết hạn là ngày 29/1/2025
+     const expiryDate = moment('2025-01-29', 'YYYY-MM-DD');
 
-    // Set the total duration in seconds
-    setTotalDuration(totalSeconds);
-  }, []);
+    // Tính sự khác biệt giữa thời gian hết hạn và thời gian hiện tại
+    const diffDuration = moment.duration(moment(expiryDate).diff(moment(currentDate)));
+    const days = parseInt(diffDuration.asDays()); // Tính số ngày
+    const hours = parseInt(diffDuration.hours()); // Tính số giờ
+    const minutes = parseInt(diffDuration.minutes()); // Tính số phút
+    const seconds = parseInt(diffDuration.seconds()); // Tính số giây
 
+    // Tính tổng số giây
+    const totalSeconds = days * 24 * 3600 + hours * 3600 + minutes * 60 + seconds;
+    setTotalDuration(totalSeconds); // Lưu tổng thời gian vào state
+  }, []); // Chỉ chạy khi component được mount
+
+  // Giao diện chính của component
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Countdown Timer</Text>
-        
-        <CountDown
-          until={totalDuration}
-          timeToShow={['H', 'M', 'S']}
-          onFinish={() => alert('Countdown Finished!')}
-          onPress={() => alert('Timer Pressed!')}
-          size={30}
-          digitStyle={styles.digitStyle}
-          digitTxtStyle={styles.digitTextStyle}
-        />
-
-        <View style={styles.navButtonsContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.navButton]}
-            onPress={() => navigation.navigate('TimePicker')}
-          >
-            <Text style={styles.buttonText}>Go to Time Picker</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.navButton]}
-            onPress={() => navigation.navigate('DatePicker')}
-          >
-            <Text style={styles.buttonText}>Go to Date Picker</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.navButton]}
-            onPress={() => navigation.navigate('TimerStopwatch')}
-          >
-            <Text style={styles.buttonText}>Go to Timer Stopwatch</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Text style={styles.title}>Tết Nguyên Đán</Text>
+      <CountDown
+        until={totalDuration} // Thời gian đếm ngược
+        timeToShow={['H', 'M', 'S']} // Hiển thị ngày, giờ, phút, giây
+        timeLabels={{ d: 'Ngày', h: 'Giờ', m: 'Phút', s: 'Giây' }} // Tùy chỉnh nhãn
+        onFinish={() => Alert.alert('Hoàn thành!')} // Hành động khi đếm ngược kết thúc
+        onPress={() => Alert.alert('Bạn vừa nhấn vào đồng hồ!')} // Hành động khi nhấn vào đồng hồ
+        size={30} // Kích thước chữ số
+        digitStyle={styles.digitStyle} // Định nghĩa kiểu chữ số
+        digitTxtStyle={styles.digitTxtStyle} // Kiểu văn bản của chữ số
+        timeLabelStyle={styles.timeLabelStyle} // Kiểu của nhãn thời gian
+        separatorStyle={styles.separatorStyle} // Kiểu của dấu phân cách
+        showSeparator // Hiển thị dấu phân cách
+      />
     </SafeAreaView>
   );
 };
 
+// Xuất component để sử dụng trong ứng dụng
+export default CustomCountDownTimer;
+
+// Định nghĩa kiểu dáng
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f8ff', // Light blue background
-    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 8,
+    paddingVertical: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 30,
+    textAlign: 'center',
+    marginBottom: 20,
   },
   digitStyle: {
-    backgroundColor: '#007BFF', // Background color for digits
-    borderRadius: 8,
-    marginHorizontal: 5,
+    backgroundColor: '#4b7bec',
+    borderRadius: 10,
+    padding: 5,
   },
-  digitTextStyle: {
-    color: '#fff', // Text color for digits
-    fontSize: 40, // Font size for countdown digits
-  },
-  button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    marginVertical: 10,
-    width: '80%',
-  },
-  buttonText: {
+  digitTxtStyle: {
     color: '#fff',
-    fontSize: 16,
-    textAlign: 'center',
+    fontWeight: 'bold',
   },
-  navButtonsContainer: {
-    marginTop: 20,
-    width: '100%',
-    alignItems: 'center',
+  timeLabelStyle: {
+    color: '#4b7bec',
+    fontWeight: '600',
   },
-  navButton: {
-    width: '80%',
-    marginBottom: 15,
+  separatorStyle: {
+    color: '#1e90ff',
+    fontWeight: 'bold',
   },
 });
-
-export default CountdownTimer;
